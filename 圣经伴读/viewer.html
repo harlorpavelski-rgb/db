@@ -2,25 +2,27 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>正在阅读：拜读某圣经中，实时更新吐槽</title>
     <style>
         * { box-sizing: border-box; }
         body, html {
             margin: 0;
             padding: 0;
-            background-color: #f7f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            background-color: #f0f2f5;
         }
-        /* 顶部固定导航栏 */
+        /* 顶部固定导航栏（移动端优化） */
         .nav-bar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 55px;
+            height: 50px;
             background-color: #ffffff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,24 +33,34 @@
             font-size: 14px;
             font-weight: bold;
             color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 45%;
         }
         .controls {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .btn {
-            padding: 6px 14px;
+            padding: 6px 12px;
             font-size: 13px;
             border: 1px solid #d9d9d9;
             background-color: #fff;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
+            user-select: none;
+            transition: all 0.3s;
+        }
+        .btn:hover:not(:disabled) {
+            color: #40a9ff;
+            border-color: #40a9ff;
         }
         .btn:disabled {
             background-color: #f5f5f5;
-            color: #bfbfbf;
+            color: rgba(0, 0, 0, 0.25);
+            border-color: #d9d9d9;
             cursor: not-allowed;
         }
         .page-info {
@@ -58,37 +70,23 @@
             text-align: center;
         }
 
-        /* 手机端丝滑内容容器 */
-        .content-container {
-            margin-top: 55px;
-            padding: 15px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            background: #ffffff;
-            min-height: calc(100vh - 55px);
+        /* 核心：网页缩放容器 */
+        .wrapper {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 50px);
+            overflow: auto; /* 允许手机端上下丝滑滚动 */
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* 核心：强制重写原本网页里乱七八糟的手机端样式 */
-        #hiddenIframe {
-            display: none; /* 隐藏原本的丑陋盒子 */
-        }
-
-        /* 让抓取出来的图片在手机上100%撑满，文字自动换行 */
-        .extracted-content img {
-            max-width: 100% !important;
-            height: auto !important;
-            display: block;
-            margin: 15px auto;
-            border-radius: 4px;
-        }
-        .extracted-content p, .extracted-content div {
-            max-width: 100% !important;
-            width: auto !important;
-            font-size: 16px !important;
-            line-height: 1.6 !important;
-            color: #222 !important;
-            word-wrap: break-word;
+        /* 强制让电脑版网页基准宽度为 850px (适配大多数电脑备份网页) */
+        .content-frame {
+            width: 850px;
+            height: 5000px; /* 预设一个足够高的长网页高度，脚本会自动根据内容动态拉伸 */
+            border: none;
+            transform-origin: top left; /* 从左上角开始缩放 */
         }
     </style>
 </head>
@@ -103,64 +101,76 @@
         </div>
     </div>
 
-    <div class="content-container">
-        <div id="displayArea" class="extracted-content">正在加载内容...</div>
+    <div class="wrapper" id="scrollWrapper">
+        <iframe id="readerFrame" class="content-frame" src="./1.html"></iframe>
     </div>
-
-    <iframe id="hiddenIframe" src=""></iframe>
 
     <script>
         let currentPage = 1;
-        const totalPages = 5; // 如果你有6页就改成6
+        const totalPages = 5; // 如果你有6页，就把这里改成 6
         const basePath = "./";
 
-        const iframe = document.getElementById('hiddenIframe');
-        const displayArea = document.getElementById('displayArea');
+        const frame = document.getElementById('readerFrame');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const pageIndicator = document.getElementById('pageIndicator');
+        const wrapper = document.getElementById('scrollWrapper');
 
-        function loadPageContent() {
-            displayArea.innerHTML = "正在拉取内容，请稍候...";
-            // 改变隐藏 iframe 的地址去读取原始 html
-            iframe.src = `${basePath}${currentPage}.html`;
+        // 核心函数：根据手机屏幕宽度，自动计算缩放比例
+        function doResize() {
+            const windowWidth = window.innerWidth;
+            const targetWidth = 850; // 电脑网页标准宽度
+
+            // 如果屏幕宽度小于电脑网页宽度（说明是手机打开）
+            if (windowWidth < targetWidth) {
+                const scale = windowWidth / targetWidth;
+                frame.style.transform = `scale(${scale})`;
+                // 缩放后，由于高度也缩小了，需要反向把 iframe 的真实高度拉长，保证内容能看全
+                frame.style.height = (wrapper.clientHeight / scale + 5000) + 'px';
+            } else {
+                // 如果是电脑打开，不需要缩放
+                frame.style.transform = 'none';
+                frame.style.width = '100%';
+                frame.style.height = '100%';
+            }
         }
 
-        // 当原始网页在后台加载完后，我们把里面的“精华”肉眼可见地偷出来
-        iframe.onload = function() {
-            try {
-                // 找到原本豆瓣网页的主体内容（通常在 body 里）
-                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-
-                // 尝试抓取正文区域，如果没有特定容器，就直接拿整个 body 里面的内容
-                let contentHtml = iframeDocument.body.innerHTML;
-
-                // 将精华内容塞进我们的手机自适应容器里
-                displayArea.innerHTML = contentHtml;
-
-                // 页面滚动回顶部
-                window.scrollTo(0, 0);
-            } catch (e) {
-                displayArea.innerHTML = "<p style='color:red; padding:20px;'>本地预览受浏览器安全限制无法直接抓取。请直接推送至 GitHub 查看手机完美效果！</p>";
-            }
-        };
+        function updateUI() {
+            frame.src = `${basePath}${currentPage}.html`;
+            pageIndicator.innerText = `${currentPage} / ${totalPages}`;
+            prevBtn.disabled = (currentPage === 1);
+            nextBtn.disabled = (currentPage === totalPages);
+        }
 
         function changePage(direction) {
             currentPage += direction;
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
-
-            // 更新按钮和数字
-            pageIndicator.innerText = `${currentPage} / ${totalPages}`;
-            prevBtn.disabled = (currentPage === 1);
-            nextBtn.disabled = (currentPage === totalPages);
-
-            loadPageContent();
+            updateUI();
         }
 
+        // 当网页加载完成或者切换页面时，重置滚动条到最顶端，并重新计算缩放
+        frame.onload = function() {
+            wrapper.scrollTo(0, 0);
+            // 尝试获取内部网页的真实高度，让滚动更丝滑
+            try {
+                const innerHeight = frame.contentWindow.document.body.scrollHeight;
+                const scale = window.innerWidth / 850;
+                if (window.innerWidth < 850) {
+                    frame.style.height = (innerHeight + 200) + 'px';
+                }
+            } catch(e) {
+                // 如果跨域或者获取失败，维持默认的大高度值
+            }
+        };
+
+        // 监听屏幕大小改变（横屏、竖屏切换）
+        window.addEventListener('resize', doResize);
+        window.addEventListener('DOMContentLoaded', doResize);
+
         // 初始化
-        prevBtn.disabled = true;
-        loadPageContent();
+        updateUI();
+        setTimeout(doResize, 300); // 延迟一点点确保计算精准
     </script>
 </body>
 </html>

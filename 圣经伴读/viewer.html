@@ -1,8 +1,9 @@
+HTML
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>正在阅读：拜读某圣经中，实时更新吐槽</title>
     <style>
         * { box-sizing: border-box; }
@@ -14,38 +15,34 @@
             overflow: hidden;
             background-color: #f0f2f5;
         }
-        /* 顶部固定导航栏（移动端优化） */
+        /* 顶部固定导航栏 */
         .nav-bar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 50px;
+            height: 60px;
             background-color: #ffffff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 15px;
+            padding: 0 20px;
             z-index: 9999;
         }
         .title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 45%;
         }
         .controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 15px;
         }
         .btn {
-            padding: 6px 12px;
-            font-size: 13px;
+            padding: 8px 16px;
+            font-size: 14px;
             border: 1px solid #d9d9d9;
             background-color: #fff;
             border-radius: 4px;
@@ -59,41 +56,31 @@
         }
         .btn:disabled {
             background-color: #f5f5f5;
-            color: rgba(0, 0, 0, 0.25);
+            color: #rgba(0, 0, 0, 0.25);
             border-color: #d9d9d9;
             cursor: not-allowed;
         }
         .page-info {
-            font-size: 13px;
+            font-size: 14px;
             color: #666;
-            min-width: 45px;
+            min-width: 60px;
             text-align: center;
         }
-
-        /* 核心：网页缩放容器 */
-        .wrapper {
+        /* 内容展示区域（占满屏幕剩余部分） */
+        .content-frame {
             position: absolute;
-            top: 50px;
+            top: 60px;
             left: 0;
             width: 100%;
-            height: calc(100% - 50px);
-            overflow: auto; /* 允许手机端上下丝滑滚动 */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 强制让电脑版网页基准宽度为 850px (适配大多数电脑备份网页) */
-        .content-frame {
-            width: 850px;
-            height: 5000px; /* 预设一个足够高的长网页高度，脚本会自动根据内容动态拉伸 */
+            height: calc(100% - 60px);
             border: none;
-            transform-origin: top left; /* 从左上角开始缩放 */
         }
     </style>
 </head>
 <body>
 
     <div class="nav-bar">
-        <div class="title">📖 拜读某圣经吐槽</div>
+        <div class="title">📖 拜读某圣经中，实时更新吐槽</div>
         <div class="controls">
             <button id="prevBtn" class="btn" onclick="changePage(-1)">◀ 上一页</button>
             <span id="pageIndicator" class="page-info">1 / 5</span>
@@ -101,43 +88,24 @@
         </div>
     </div>
 
-    <div class="wrapper" id="scrollWrapper">
-        <iframe id="readerFrame" class="content-frame" src="./1.html"></iframe>
-    </div>
+    <iframe id="readerFrame" class="content-frame" src="./拜读某圣经中，实时更新吐槽/1.html"></iframe>
 
     <script>
         let currentPage = 1;
-        const totalPages = 5; // 如果你有6页，就把这里改成 6
-        const basePath = "./";
-
+        const totalPages = 5;
+        const basePath = "./拜读某圣经中，实时更新吐槽/";
+        
         const frame = document.getElementById('readerFrame');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const pageIndicator = document.getElementById('pageIndicator');
-        const wrapper = document.getElementById('scrollWrapper');
-
-        // 核心函数：根据手机屏幕宽度，自动计算缩放比例
-        function doResize() {
-            const windowWidth = window.innerWidth;
-            const targetWidth = 850; // 电脑网页标准宽度
-
-            // 如果屏幕宽度小于电脑网页宽度（说明是手机打开）
-            if (windowWidth < targetWidth) {
-                const scale = windowWidth / targetWidth;
-                frame.style.transform = `scale(${scale})`;
-                // 缩放后，由于高度也缩小了，需要反向把 iframe 的真实高度拉长，保证内容能看全
-                frame.style.height = (wrapper.clientHeight / scale + 5000) + 'px';
-            } else {
-                // 如果是电脑打开，不需要缩放
-                frame.style.transform = 'none';
-                frame.style.width = '100%';
-                frame.style.height = '100%';
-            }
-        }
 
         function updateUI() {
+            // 改变 iframe 的地址，实现翻页
             frame.src = `${basePath}${currentPage}.html`;
+            // 更新页码显示
             pageIndicator.innerText = `${currentPage} / ${totalPages}`;
+            // 按钮禁用逻辑
             prevBtn.disabled = (currentPage === 1);
             nextBtn.disabled = (currentPage === totalPages);
         }
@@ -147,30 +115,14 @@
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
             updateUI();
+            // 翻页后网页自动滚动回最顶端
+            frame.onload = function() {
+                frame.contentWindow.scrollTo(0, 0);
+            }
         }
 
-        // 当网页加载完成或者切换页面时，重置滚动条到最顶端，并重新计算缩放
-        frame.onload = function() {
-            wrapper.scrollTo(0, 0);
-            // 尝试获取内部网页的真实高度，让滚动更丝滑
-            try {
-                const innerHeight = frame.contentWindow.document.body.scrollHeight;
-                const scale = window.innerWidth / 850;
-                if (window.innerWidth < 850) {
-                    frame.style.height = (innerHeight + 200) + 'px';
-                }
-            } catch(e) {
-                // 如果跨域或者获取失败，维持默认的大高度值
-            }
-        };
-
-        // 监听屏幕大小改变（横屏、竖屏切换）
-        window.addEventListener('resize', doResize);
-        window.addEventListener('DOMContentLoaded', doResize);
-
-        // 初始化
+        // 初始化按钮状态
         updateUI();
-        setTimeout(doResize, 300); // 延迟一点点确保计算精准
     </script>
 </body>
 </html>

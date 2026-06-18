@@ -44,7 +44,64 @@
       .article {
         background: url('/group/topic/background.png');
       }
+@media (max-width: 720px) {
+    /* 1. 修复可能存在的广告或PC卡片绿色操作按钮变形 */
+    .adjs-360pc-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    .adjs-360pc-action {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: auto !important;
+        padding: 0 12px !important;
+        line-height: 24px !important;
+        height: auto !important;
+        white-space: normal !important; /* 允许换行，防止文字溢出 */
+        display: inline-block !important;
+    }
 
+    /* 2. 修复带有绿色背景的用户名或管理图标 */
+    .bg-img-green, .manager-icon, .owner-icon {
+        background-color: #6f8f63 !important; /* 统一绿色底色 */
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+        line-height: 1.4 !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+        max-width: 100% !important;
+        word-break: break-all !important; /* 强制英文或符号换行 */
+    }
+
+    /* 3. 针对评论区和网格布局在窄屏下字挤在一起的修复 */
+    #topic-content.topic-content, .comment-item {
+        display: flex !important; /* 将原有的网格改为流式上下布局 */
+        flex-direction: column !important;
+        padding: 16px 10px !important;
+    }
+
+    .user-face, .avatar {
+        margin-bottom: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* 4. 修复文本及段落溢出 */
+    .reply-content, .topic-richtext, .markdown {
+        font-size: 15px !important;
+        line-height: 1.6 !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        width: 100% !important;
+    }
+
+    /* 5. 防止图片过大撑开屏幕 */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
     </style>
 
 

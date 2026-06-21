@@ -30,7 +30,7 @@ var thispost = [
             },
             {
                 "title": "2_拜读技术派圣经 第二集",
-                "total_pages": 6,
+                "total_pages": 7,
                 "pages": [
                     {
                         "title": "1",
@@ -55,6 +55,10 @@ var thispost = [
                     {
                         "title": "6",
                         "path": "./圣经伴读/2_拜读技术派圣经 第二集/6.html"
+                    },
+                    {
+                        "title": "7",
+                        "path": "./圣经伴读/2_拜读技术派圣经 第二集/7.html"
                     }
                 ]
             }

@@ -63,5 +63,35 @@ var thispost = [
                 ]
             }
         ]
+    },
+    {
+        "category": "笑谈",
+        "posts": [
+            {
+                "title": "笑谈_全是情绪没有输出",
+                "total_pages": 1,
+                "pages": [
+                    {
+                        "title": "1",
+                        "path": "./笑谈/笑谈_全是情绪没有输出/1.html"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "category": "记录",
+        "posts": [
+            {
+                "title": "记录｜建设存档点",
+                "total_pages": 1,
+                "pages": [
+                    {
+                        "title": "1",
+                        "path": "./记录/记录｜建设存档点/1.html"
+                    }
+                ]
+            }
+        ]
     }
 ];

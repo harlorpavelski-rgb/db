@@ -72,8 +72,8 @@ var thispost = [
                 "total_pages": 1,
                 "pages": [
                     {
-                        "title": "1",
-                        "path": "./笑谈/笑谈_全是情绪没有输出/1.html"
+                        "title": "全是情绪没有输出 (MD)",
+                        "path": "./笑谈/笑谈_全是情绪没有输出/全是情绪没有输出.md"
                     }
                 ]
             }
@@ -87,8 +87,23 @@ var thispost = [
                 "total_pages": 1,
                 "pages": [
                     {
-                        "title": "1",
-                        "path": "./记录/记录｜建设存档点/1.html"
+                        "title": "建设存档点. (MD)",
+                        "path": "./记录/记录｜建设存档点/建设存档点..md"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "category": "其他",
+        "posts": [
+            {
+                "title": "README (MD)",
+                "total_pages": 1,
+                "pages": [
+                    {
+                        "title": "README",
+                        "path": "./README.md"
                     }
                 ]
             }

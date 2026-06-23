@@ -80,6 +80,29 @@ var thispost = [
         ]
     },
     {
+        "category": "组务",
+        "posts": [
+            {
+                "title": "组务 _ 大家来认领一下吧",
+                "total_pages": 3,
+                "pages": [
+                    {
+                        "title": "1",
+                        "path": "./组务/组务 _ 大家来认领一下吧/1.html"
+                    },
+                    {
+                        "title": "2",
+                        "path": "./组务/组务 _ 大家来认领一下吧/2.html"
+                    },
+                    {
+                        "title": "3",
+                        "path": "./组务/组务 _ 大家来认领一下吧/3.html"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "category": "记录",
         "posts": [
             {
